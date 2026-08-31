@@ -8,6 +8,43 @@ const ResourceUploadForm = () => {
         tags: '',
         file: null,
     });
+    const [errors, setErrors] = useState({});
+    const validateForm = () => {
+        const validationErrors = {};
+
+        if (!formData.title.trim()) {
+            validationErrors.title = 'Title is required.';
+        }
+
+        if (!formData.category) {
+            validationErrors.category = 'Category is required.';
+        }
+
+        if (!formData.file) {
+            validationErrors.file = 'Please select a file.';
+        } else {
+            const maximumSize = 10 * 1024 * 1024;
+            const allowedTypes = [
+                'application/pdf',
+                'image/jpeg',
+                'image/png',
+                'text/plain',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            ];
+
+            if (formData.file.size > maximumSize) {
+                validationErrors.file = 'The file must be 10 MB or smaller.';
+            } else if (!allowedTypes.includes(formData.file.type)) {
+                validationErrors.file = 'This file type is not supported.';
+            }
+        }
+
+        setErrors(validationErrors);
+        return Object.keys(validationErrors).length === 0;
+    };
 
     const handleChange = (event) => {
         const { name, value, files } = event.target;
@@ -20,6 +57,10 @@ const ResourceUploadForm = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
     };
 
     return (
@@ -41,6 +82,11 @@ const ResourceUploadForm = () => {
                 onChange={handleChange}
                 className="w-full mb-4 p-2 border rounded"
             />
+            {errors.title && (
+                <p className="text-red-600 text-sm mb-4">
+                    {errors.title}
+                </p>
+            )}
 
             <label className="block mb-2" htmlFor="resource-description">
                 Description
@@ -72,6 +118,11 @@ const ResourceUploadForm = () => {
                 <option value="video">Video Link</option>
                 <option value="other">Other</option>
             </select>
+            {errors.category && (
+                <p className="text-red-600 text-sm mb-4">
+                    {errors.category}
+                </p>
+            )}
 
             <label className="block mb-2" htmlFor="resource-tags">
                 Tags
@@ -93,9 +144,15 @@ const ResourceUploadForm = () => {
                 id="resource-file"
                 type="file"
                 name="file"
+                accept='.pdf, .jpg, .jpeg, .png, .txt, .doc, .docx, .ppt, .pptx'
                 onChange={handleChange}
                 className="w-full mb-4 p-2 border rounded"
             />
+            {errors.file && (
+                <p className="text-red-600 text-sm mb-4">
+                    {errors.file}
+                </p>
+            )}
 
             <button
                 type="submit"
