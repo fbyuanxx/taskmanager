@@ -37,7 +37,50 @@ const AdminUsers = () => {
             setLoading(false);
         }
     }, [user]);
+    const handleStatusChange = async (registeredUser) => {
+        const newStatus = registeredUser.isActive === false;
 
+        const action = newStatus ? 'enable' : 'disable';
+
+        const confirmed = window.confirm(
+            `Are you sure you want to ${action} ${registeredUser.name}?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            const response = await axiosInstance.patch(
+                `/api/admin/users/${registeredUser._id}/status`,
+                {
+                    isActive: newStatus,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                }
+            );
+
+            setUsers((currentUsers) =>
+                currentUsers.map((currentUser) =>
+                    currentUser._id === response.data._id
+                        ? response.data
+                        : currentUser
+                )
+            );
+
+            if (selectedUser?._id === response.data._id) {
+                setSelectedUser(response.data);
+            }
+        } catch (error) {
+            alert(
+                error.response?.data?.message ||
+                'Failed to update user account status.'
+            );
+        }
+    };
     if (loading) {
         return (
             <div className="mt-20 text-center">
@@ -80,24 +123,28 @@ const AdminUsers = () => {
                                         <td className="border p-3">{registeredUser.email}</td>
                                         <td className="border p-3">
                                             <span
-                                                className={
-                                                    registeredUser.isActive !== false
-                                                        ? 'rounded bg-green-100 px-2 py-1 text-sm text-green-700'
-                                                        : 'rounded bg-red-100 px-2 py-1 text-sm text-red-700'
-                                                }
-                                            >
+                                                className={registeredUser.isActive !== false? 'rounded bg-green-100 px-2 py-1 text-sm text-green-700': 'rounded bg-red-100 px-2 py-1 text-sm text-red-700'
+
+                                                }>
                                                 {registeredUser.isActive === false ? 'Disabled' : 'Active'}
                                             </span>
                                         </td>
 
                                         <td className="border p-3">
-                                            <button
-                                                type="button"
-                                                onClick={() => setSelectedUser(registeredUser)}
-                                                className="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
-                                            >
-                                                View
-                                            </button>
+                                            <div className="flex gap-2">
+                                                <button type="button" onClick={() => setSelectedUser(registeredUser)} className="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
+                                                >View</button>
+
+                                                <button type="button" onClick={() => handleStatusChange(registeredUser)} disabled={registeredUser._id === user.id}
+                                                    className={ registeredUser.isActive === false ? 'rounded bg-green-600 px-3 py-1 text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50' : 'rounded bg-red-600 px-3 py-1 text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50'
+                                                    }
+                                                    title={
+                                                        registeredUser._id === user.id ? 'You cannot disable your own account': undefined
+                                                    }
+                                                >
+                                                    {registeredUser.isActive === false ? 'Enable' : 'Disable'}
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
