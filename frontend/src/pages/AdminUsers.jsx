@@ -1,33 +1,50 @@
-import { useState } from 'react';
-const AdminUsers = () => {
-    const [selectedUser, setSelectedUser] = useState(null);
+import { useEffect, useState } from 'react';
+import axiosInstance from '../axiosConfig';
+import { useAuth } from '../context/AuthContext';
 
-    const users = [
-        {
-            id: '1',
-            name: 'Alice Smith',
-            email: 'alice@example.com',
-            university: 'Queensland University of Technology',
-            address: 'Brisbane, QLD',
-            status: 'Active',
-        },
-        {
-            id: '2',
-            name: 'Bob Jones',
-            email: 'bob@example.com',
-            university: 'Griffith University',
-            address: 'Gold Coast, QLD',
-            status: 'Disabled',
-        },
-        {
-            id: '3',
-            name: 'Charlie Brown',
-            email: 'charlie@example.com',
-            university: 'University of Queensland',
-            address: 'St Lucia, QLD',
-            status: 'Active',
-        },
-    ];
+const AdminUsers = () => {
+    const { user } = useAuth();
+    const [users, setUsers] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await axiosInstance.get(
+                    '/api/admin/users',
+                    {
+                        headers: {
+                            Authorization: `Bearer ${user.token}`,
+                        },
+                    }
+                );
+
+                setUsers(response.data);
+            } catch (error) {
+                alert(
+                    error.response?.data?.message ||
+                    'Failed to retrieve registered users.'
+                );
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (user?.token) {
+            fetchUsers();
+        } else {
+            setLoading(false);
+        }
+    }, [user]);
+
+    if (loading) {
+        return (
+            <div className="mt-20 text-center">
+                Loading registered users...
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto p-6">
@@ -58,18 +75,18 @@ const AdminUsers = () => {
                                 </tr>
                             ) : (
                                 users.map((registeredUser) => (
-                                    <tr key={registeredUser.id} className="hover:bg-gray-50">
+                                    <tr key={registeredUser._id} className="hover:bg-gray-50">
                                         <td className="border p-3"> {registeredUser.name}</td>
                                         <td className="border p-3">{registeredUser.email}</td>
                                         <td className="border p-3">
                                             <span
                                                 className={
-                                                    registeredUser.status === 'Active'
+                                                    registeredUser.isActive !== false
                                                         ? 'rounded bg-green-100 px-2 py-1 text-sm text-green-700'
                                                         : 'rounded bg-red-100 px-2 py-1 text-sm text-red-700'
                                                 }
                                             >
-                                                {registeredUser.status}
+                                                {registeredUser.isActive === false ? 'Disabled' : 'Active'}
                                             </span>
                                         </td>
 
@@ -149,7 +166,11 @@ const AdminUsers = () => {
                                 <dt className="font-semibold text-gray-700">
                                     Account status
                                 </dt>
-                                <dd>{selectedUser.status}</dd>
+                                <dd>
+                                    {selectedUser.isActive === false
+                                        ? 'Disabled'
+                                        : 'Active'}
+                                </dd>
                             </div>
                         </dl>
 
