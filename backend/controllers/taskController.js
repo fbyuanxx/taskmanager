@@ -1,7 +1,9 @@
+const Task = require('../models/Task')
+
 // Read Task
 const getTask = async (req, res) => {
     try {
-        const task = await Task.findById(req.params.id);
+        const task = await Task.find(userId: req.user.id);
         res.json(task);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -12,7 +14,7 @@ const getTask = async (req, res) => {
 const addTask = async (req, res) => {
     const { title, description, deadline } = req.body;
     try {
-        const task = new ask.create({ userId: req.user.id, title, description, deadline });
+        const task = new Task.create({ userId: req.user.id, title, description, deadline });
         res.status(201).json(task);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -47,4 +49,4 @@ const deleteTask = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-module.exports = { getTasks, addTask, updateTask, deleteTask };
+module.exports = { getTask, addTask, updateTask, deleteTask };
