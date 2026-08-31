@@ -1,10 +1,10 @@
 const Task = require('../models/Task')
 
 // Read Task
-const getTask = async (req, res) => {
+const getTasks = async (req, res) => {
     try {
-        const task = await Task.find({userId: req.user.id});
-        res.json(task);
+        const tasks = await Task.find({userId: req.user.id});
+        res.json(tasks);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -49,4 +49,4 @@ const deleteTask = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
-module.exports = { getTask, addTask, updateTask, deleteTask };
+module.exports = { getTasks, addTask, updateTask, deleteTask };
