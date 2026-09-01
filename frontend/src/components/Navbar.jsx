@@ -16,8 +16,7 @@ const Navbar = () => {
       <div>
         {user ? (
           <>
-            <Link to="/resources/add" className="mr-4">Add Resource</Link>
-            <Link to="/tasks" className="mr-4">Tasks</Link>
+            <Link to="/resources" className="mr-4">Resource Links</Link>
             {user.isAdmin && (
               <Link to="/admin/users" className="mr-4">
                 Admin Users

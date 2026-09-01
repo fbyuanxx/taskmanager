@@ -30,7 +30,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/tasks', require('./routes/taskRoutes'));
+app.use('/api/resources', require('./routes/resourceRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Export the app object for testing

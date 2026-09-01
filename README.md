@@ -1,6 +1,6 @@
 # Learning Resource Library
 
-A MERN-stack prototype for managing learning resources, personal tasks, user profiles, and administrator-controlled user accounts. The project was developed for **IFN636 Software Life Cycle Management** and demonstrates requirements analysis, UI/UX design, role-based access control, iterative development, and Git-based version control.
+A MERN-stack prototype for managing learning resource links, user profiles, and administrator-controlled user accounts. The project was developed for **IFN636 Software Life Cycle Management** and demonstrates requirements analysis, UI/UX design, role-based access control, iterative development, and Git-based version control.
 
 ## Project links
 
@@ -12,7 +12,7 @@ A MERN-stack prototype for managing learning resources, personal tasks, user pro
 
 ## Project purpose
 
-Students and self-learners often keep lecture notes, PDFs, presentations, images, and other resources across different devices and cloud services. This project explores a central library where users can organise their learning materials and manage related study tasks, while administrators manage access to the system.
+Students and self-learners often discover useful learning materials across many websites and platforms. This project provides a central library where users can organise links to those resources, while administrators manage access to the system.
 
 ## Current features
 
@@ -25,19 +25,13 @@ Students and self-learners often keep lecture notes, PDFs, presentations, images
 - View and update name, email, university, and address
 - Prevent disabled users from logging in or accessing protected API routes
 
-### Task management
+### Resource Link Management
 
-- Create personal tasks with a title, description, and deadline
-- View tasks belonging to the authenticated user
-- Edit and delete tasks
-
-### Learning resource form
-
-- Enter a title, description, category, and tags
-- Select PDF, JPEG, PNG, TXT, Word, or PowerPoint files
-- Validate required metadata, supported file types, and a maximum file size of 10 MB
-
-> **Current limitation:** resource validation is implemented in the frontend only. Upload storage, resource listing, search, download, sharing, and administrator review are planned but are not yet connected to backend APIs.
+- Save a learning resource with a title, description, category, tags, and HTTP(S) URL
+- View resource links belonging to the authenticated user
+- Open saved resources in a new browser tab
+- Edit and delete resource links
+- Persist resource metadata in MongoDB
 
 ### Administrator user management
 
@@ -50,8 +44,7 @@ Students and self-learners often keep lecture notes, PDFs, presentations, images
 
 The project roadmap includes:
 
-- Persistent resource upload and storage
-- Resource metadata editing and deletion
+- Persistent file upload and storage
 - Search and filtering by keyword, category, and tag
 - Resource viewing and downloading
 - Sharing requests with administrator approval or rejection
@@ -73,17 +66,17 @@ AI recommendations, summarisation, automatic tagging, analytics, collaborative e
 taskmanagerv1/
 ├── backend/
 │   ├── config/          # MongoDB connection
-│   ├── controllers/     # Authentication, task, and admin logic
+│   ├── controllers/     # Authentication, resource, and admin logic
 │   ├── middleware/      # JWT and administrator authorization
-│   ├── models/          # User and Task schemas
+│   ├── models/          # User and ResourceLink schemas
 │   ├── routes/          # REST API routes
 │   └── server.js        # Express application entry point
 ├── frontend/
 │   ├── public/
 │   └── src/
-│       ├── components/  # Navigation, task, and resource forms
+│       ├── components/  # Navigation and resource-link forms
 │       ├── context/     # Authentication state
-│       └── pages/       # Login, register, profile, tasks, resources, admin
+│       └── pages/       # Login, register, profile, resources, admin
 ├── package.json         # Root development scripts
 └── README.md
 ```
@@ -149,7 +142,7 @@ npm test --prefix backend
 
 ## API overview
 
-All task, profile, and administrator requests require a bearer token unless noted otherwise.
+All resource, profile, and administrator requests require a bearer token unless noted otherwise.
 
 | Method | Endpoint | Description | Access |
 | --- | --- | --- | --- |
@@ -157,10 +150,10 @@ All task, profile, and administrator requests require a bearer token unless note
 | `POST` | `/api/auth/login` | Log in | Public |
 | `GET` | `/api/auth/profile` | Get the current profile | Authenticated |
 | `PUT` | `/api/auth/profile` | Update the current profile | Authenticated |
-| `GET` | `/api/tasks` | List the current user's tasks | Authenticated |
-| `POST` | `/api/tasks` | Create a task | Authenticated |
-| `PUT` | `/api/tasks/:id` | Update a task | Authenticated |
-| `DELETE` | `/api/tasks/:id` | Delete a task | Authenticated |
+| `GET` | `/api/resources` | List the current user's resource links | Authenticated |
+| `POST` | `/api/resources` | Create a resource link | Authenticated |
+| `PUT` | `/api/resources/:id` | Update a resource link | Authenticated |
+| `DELETE` | `/api/resources/:id` | Delete a resource link | Authenticated |
 | `GET` | `/api/admin/users` | List registered users | Administrator |
 | `PATCH` | `/api/admin/users/:id/status` | Enable or disable a user | Administrator |
 | `GET` | `/api/health` | Check that the API process is responding | Public |
@@ -173,12 +166,12 @@ The marking workflow is:
 
 1. Register a user account.
 2. Log in with the new account.
-3. Create a task with a title, description, and deadline.
-4. Refresh the task list to demonstrate database persistence.
-5. Edit the task and then delete it.
+3. Save a learning resource with a title, description, category, tags, and URL.
+4. Refresh the resource list to demonstrate database persistence.
+5. Open the resource link, edit its metadata, and then delete it.
 6. Log out and verify that protected API operations require authentication.
 
-This is the complete coherent workflow implemented for the sample application. Resource upload storage remains outside this demonstrated workflow because it is currently frontend validation only.
+This is the complete coherent workflow implemented for the sample application. Binary file upload remains outside the current scope; the application manages resource links and their metadata.
 
 ## EC2 manual deployment
 
@@ -191,7 +184,7 @@ Before deployment:
 3. Clone the repository and install backend and frontend dependencies.
 4. Copy `backend/.env.example` to `backend/.env`, enter production values directly on EC2, and run `chmod 600 backend/.env`.
 5. Run `npm run build --prefix frontend`, manage the Express process with PM2, and configure Nginx to serve `frontend/build` and proxy `/api` to `127.0.0.1:5001`.
-6. Verify `/api/health`, registration, login, task create/read/update/delete, refresh persistence, and logout through the public URL.
+6. Verify `/api/health`, registration, login, resource-link create/read/update/delete, refresh persistence, and logout through the public URL.
 
 The deployment is manual; CI/CD is not required. Keep the EC2 instance and public URL available throughout the marking window.
 
