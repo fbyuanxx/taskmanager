@@ -10,6 +10,13 @@ node_modules/
 
 # production
 /build
+frontend/build/
+
+# backend secrets
+backend/.env
+
+# deployment credentials
+*.pem
 
 # misc
 .DS_Store
