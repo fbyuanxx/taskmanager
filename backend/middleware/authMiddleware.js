@@ -10,7 +10,13 @@ const protect = async (req, res, next) => {
             token = req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             req.user = await User.findById(decoded.id).select('-password');
-            next();
+            if (!req.user) {
+                return res.status(401).json({ message: 'User account not found' });
+            }
+            if (req.user.isActive === false) {
+                return res.status(403).json({ message: 'This user account has been disabled' });
+            }
+            return next();
         } catch (error) {
             res.status(401).json({ message: 'Not authorized, token failed' });
         }
@@ -20,5 +26,11 @@ const protect = async (req, res, next) => {
         res.status(401).json({ message: 'Not authorized, no token' });
     }
 };
+const admin = (req, res, next) => {
+    if (req.user && req.user.isAdmin) {
+        return next();
+    }
 
-module.exports = { protect };
+    return res.status(403).json({ message: 'Administrator access is required' });
+};
+module.exports = { protect, admin };
